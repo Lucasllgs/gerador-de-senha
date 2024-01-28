@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Importa a fonte Inter do fonts.google.com -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+
+        <!-- Importa a fonte Inconsolata do fonts.google.com -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@600&display=swap" rel="stylesheet">
+        
+        <link rel="stylesheet" href="reset.css">
+        <link rel="stylesheet" href="style.css">
+        <title>Gerador de senhas</title>
+    </head>
+    <body>
+        <main>
+
+            <section class="hero">
+                <h1 class="title">Gerador de senha</h1>
+                <p class="subtitle">Eleve a segurança online ao gerar senhas exclusivas e seguras!</p>
+            </section>
+
+            <section class="box">
+                <div class="password">
+                    <div class="text">
+                        <!-- Cria a caixa de texto onde será exibida a senha -->
+                        <input type="text" 
+                        name="password" 
+                        id="password"
+                        />
+                    </div>
+                    <div class="actions">
+                        <button id="copy-1">
+                            <img src="copy.svg" alt="copiar" width="42">
+                        </button>
+                        <button id="renew">
+                            <img src="renew.svg" alt="atualizar" width="42">
+                        </button>
+                    </div>
+                </div>
+                <div class="securityIndicator">
+                    <div id="securityIndicatorBar" 
+                    class="bar"
+                    style="width: 100%;">
+                    </div>
+                </div>
+            </section>
+
+            <section class="box customize">
+                <h3 class="title">Personalizar senha</h3>
+                <div class="actions">
+                    <div class="password-lenght">
+                        <p>Tamanho: <span id="password-lenght-text">40</span></p>
+                        <!-- Cria a o slider que será exibido na tela -->
+                        <input 
+                            type="range" 
+                            name="password-lenght" 
+                            id="password-lenght"
+                            class="slider"
+                            value="40"
+                            min="4"
+                            max="64"
+                        />
+                    </div>
+                    <div class="config">
+                        <!-- Cria as caixas de check -->
+                        <label class="checkbox-container">
+                            <span class="text">Minusculas</span>
+                            <input type="checkbox" id="lowercase-check" checked>
+                            <span class="checkmark"></span>
+                        </label>
+                        <label class="checkbox-container">
+                            <span class="text">Maiúsculas</span>
+                            <input type="checkbox" id="uppercase-check" checked>
+                            <span class="checkmark"></span>
+                        </label>
+                        <label class="checkbox-container">
+                            <span class="text">Números</span>
+                            <input type="checkbox" id="number-check" checked>
+                            <span class="checkmark"></span>
+                        </label>
+                        <label class="checkbox-container">
+                            <span class="text">Símbolos</span>
+                            <input type="checkbox" id="symbol-check" checked>
+                            <span class="checkmark"></span>
+                        </label>
+
+                    </div>                
+                </div>
+            </section>
+
+            <div class="submit">
+                <!-- Cria o botão de Copiar Senha -->
+                <button id="copy-2">Copiar senha</button>
+            </div>
+        </main>
+
+        <script>
+
+            // Inicialização de constantes 
+            const inputEl = document.querySelector("#password")
+            const lowecaseCheckEl = document.querySelector("#lowercase-check")
+            const uppercaseCheckEl = document.querySelector("#uppercase-check")
+            const numberCheckEl = document.querySelector("#number-check")
+            const symbolCheckEl = document.querySelector("#symbol-check")
+            const renewEl = document.querySelector("#renew")
+            const securityCheckBar = document.querySelector("#securityIndicatorBar")
+
+            // Inicializa a variavel passwordLenght
+            let passwordLenght = 40
+
+            // Função que gera as senhas
+            function generatePassword(){
+
+                // Inicializa a variavel password
+                let password = ""
+
+                // Characteres presentes na senha
+                let chars = ""
+                const lowercaseChars = "abcdefghijklmnpqrstuvwxyz"
+                const uppercaseChars = "ABCDEFGHIJKLMNPQRSTUVWXYZ"
+                const numberChars = "123456789"
+                const symbolChars = "!@#$%¨&*[]()<>,.?:/°º{}´`=+§-_¬"
+
+                if(lowecaseCheckEl.checked === true){
+                    chars += lowercaseChars
+                }
+                if(uppercaseCheckEl.checked === true){
+                    chars += uppercaseChars
+                }
+                if(numberCheckEl.checked === true){
+                    chars += numberChars
+                }
+                if(symbolCheckEl.checked === true){
+                    chars += symbolChars
+                }
+
+                // Loop for que irá selecionar um charactere aleatório da constante chars
+                for (let i = 0; i < passwordLenght; i++){
+                    const randomNumber = Math.floor(Math.random() * chars.length)
+                    password += chars.substring(randomNumber, randomNumber + 1)
+                }
+
+                // Escreve na caixa de texto a senha que foi gerada
+                inputEl.value = password
+
+                passwordSecurity()
+                changeFontSize()
+            }
+
+            // Copia a senha para o clipboard
+            function copy(){
+                navigator.clipboard.writeText(inputEl.value)
+                alert("Senha copiada!")
+            }
+
+            // Relaciona a posição do slider com um valor limite para a senha
+            const passwordLenghtEl = document.querySelector("#password-lenght")
+            passwordLenghtEl.addEventListener("input", function(){
+                passwordLenght = passwordLenghtEl.value
+                document.querySelector("#password-lenght-text").innerText = 
+                passwordLenght
+                generatePassword()
+            })
+            
+            // Checa a segurança da senha e muda a cor da barra de segurança
+            function passwordSecurity() {
+
+                let percent = (passwordLenght * 100 * 0.25/ 20.25) +
+                (lowecaseCheckEl.checked ? 4 : -1) + 
+                (uppercaseCheckEl.checked ? 4 : -1) + 
+                (numberCheckEl.checked ? 5 : -2) + 
+                (symbolCheckEl.checked ? 8 : -5)
+
+                if(lowecaseCheckEl.checked === false &&
+                uppercaseCheckEl.checked === false &&
+                numberCheckEl.checked === false &&
+                symbolCheckEl.checked === false){
+                    percent = 0
+                }
+                
+                securityCheckBar.style.width = `${percent}%`
+
+                if(percent <= 25){
+                    securityCheckBar.classList = "bar critical"
+                } else if (percent > 25 && percent <= 70){
+                    securityCheckBar.classList  = "bar warning"
+                } else if (percent > 70 && percent < 100){
+                    securityCheckBar.classList = "bar safe"
+                } else if (percent >= 100){
+                    securityCheckBar.classList = "bar completed"
+                }
+            }
+
+            function changeFontSize() {
+
+                if(passwordLenght > 49) {
+                    inputEl.classList = "font-sm"
+                } else if(passwordLenght <= 49 && passwordLenght > 30) {
+                    inputEl.classList = "font-xx"
+                }else if(passwordLenght <= 30 && passwordLenght > 20) {
+                    inputEl.classList = "font-xxl"
+                } else if(passwordLenght <= 20) {
+                    inputEl.classList = "font-xxxl"
+                }
+            }
+
+            // Gera nova senha ao marcar uma das checkbox ou ao clicar no botão renew
+            lowecaseCheckEl.addEventListener("click", generatePassword)
+            uppercaseCheckEl.addEventListener("click", generatePassword)
+            numberCheckEl.addEventListener("click", generatePassword)
+            symbolCheckEl.addEventListener("click", generatePassword)
+            renewEl.addEventListener("click", generatePassword)
+
+            // Relaciona o click nos botões de copiar à função copy()
+            document.querySelector("#copy-1").addEventListener("click", copy)
+            document.querySelector("#copy-2").addEventListener("click", copy)
+
+            generatePassword()
+
+        </script>
+
+    </body>
+</html>
